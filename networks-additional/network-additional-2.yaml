@@ -1,0 +1,62 @@
+heat_template_version: 2015-04-30
+
+description: >
+  NetworkAdditional2 network.
+
+parameters:
+  # the defaults here work for static IP assignment (IPAM) only
+  NetworkAdditional2NetCidr:
+    default: '172.31.0.0/24'
+    description: Cidr for the network_additional_2 network.
+    type: string
+  NetworkAdditional2NetValueSpecs:
+    default: {'provider:physical_network': 'network_additional_2', 'provider:network_type': 'flat'}
+    description: Value specs for the network_additional_2 network.
+    type: string
+  NetworkAdditional2NetAdminStateUp:
+    default: false
+    description: This admin state of of the network.
+    type: boolean
+  NetworkAdditional2NetEnableDHCP:
+    default: false
+    description: Whether to enable DHCP on the associated subnet.
+    type: boolean
+  NetworkAdditional2NetShared:
+    default: false
+    description: Whether this network is shared across all network_additional_2s.
+    type: boolean
+  NetworkAdditional2NetName:
+    default: network_additional_2
+    description: The name of the network_additional_2 network.
+    type: string
+  NetworkAdditional2SubnetName:
+    default: network_additional_2_subnet
+    description: The name of the network_additional_2 subnet in Neutron.
+    type: string
+  NetworkAdditional2AllocationPools:
+    default: [{'start': '172.31.0.4', 'end': '172.31.0.250'}]
+    description: Ip allocation pool range for the network_additional_2 network.
+    type: json
+
+resources:
+  NetworkAdditional2Network:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: {get_param: NetworkAdditional2NetAdminStateUp}
+      name: {get_param: NetworkAdditional2NetName}
+      shared: {get_param: NetworkAdditional2NetShared}
+      value_specs: {get_param: NetworkAdditional2NetValueSpecs}
+
+  NetworkAdditional2Subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      cidr: {get_param: NetworkAdditional2NetCidr}
+      enable_dhcp: {get_param: NetworkAdditional2NetEnableDHCP}
+      name: {get_param: NetworkAdditional2SubnetName}
+      network: {get_resource: NetworkAdditional2Network}
+      allocation_pools: {get_param: NetworkAdditional2AllocationPools}
+
+outputs:
+  OS::stack_id:
+    description: Neutron network_additional_2 network
+    value: {get_resource: NetworkAdditional2Network}

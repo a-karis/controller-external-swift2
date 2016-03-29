@@ -1,0 +1,81 @@
+heat_template_version: 2014-10-16
+
+description: >
+  Point haproxy to external swift proxy
+
+# Note extra parameters can be defined, then passed data via the
+# environment parameter_defaults, without modifying the parent template
+parameters:
+  servers:
+    type: json
+  SWIFT_PROXY_NAMES:
+    type: string
+    default: ''
+  SWIFT_PROXY_IPS:
+    type: string
+    default: ''
+  ExternalNetCidr:
+    default: '10.0.0.0/24'
+    description: Cidr for the external network.
+    type: string
+  StorageNetCidr:
+    default: '172.16.1.0/24'
+    description: Cidr for the storage network.
+    type: string
+  DeployUUID:
+    default: '###UUID-465a623c-d0bd-4be2-95d0-8eed15b558ec###'
+    description: Cidr for the storage network.
+    type: string
+
+
+resources:
+
+  ControllerSwiftProxyConfig:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      inputs:
+        - name: ACTION
+        - name: SWIFT_PROXY_NAMES
+        - name: SWIFT_PROXY_IPS
+        - name: STORAGE_NET_CIDR
+        - name: EXTERNAL_NET_CIDR
+        - name: DEPLOY_UUID
+      config: {get_file: controller-swift-proxy.sh}
+
+  ControllerSwiftProxyConfigDeploymentsCreate:
+    type: OS::Heat::SoftwareDeployments
+    properties:
+      servers:  {get_param: servers}
+      config: {get_resource: ControllerSwiftProxyConfig}
+      actions: ['CREATE'] # Only do this on CREATE and UPDATE
+      input_values:
+        ACTION: 'CREATE'
+        DEPLOY_UUID: { get_param: DeployUUID }
+        SWIFT_PROXY_NAMES: { get_param: SWIFT_PROXY_NAMES }
+        SWIFT_PROXY_IPS: { get_param: SWIFT_PROXY_IPS }
+        STORAGE_NET_CIDR: {get_param: StorageNetCidr }
+        EXTERNAL_NET_CIDR: { get_param: ExternalNetCidr }
+
+  ControllerSwiftProxyConfigDeploymentsUpdate:
+    type: OS::Heat::SoftwareDeployments
+    properties:
+      servers:  {get_param: servers}
+      config: {get_resource: ControllerSwiftProxyConfig}
+      actions: ['UPDATE'] # Only do this on CREATE and UPDATE
+      input_values:
+        ACTION: 'UPDATE'
+        DEPLOY_UUID: { get_param: DeployUUID }
+        SWIFT_PROXY_NAMES: { get_param: SWIFT_PROXY_NAMES }
+        SWIFT_PROXY_IPS: { get_param: SWIFT_PROXY_IPS }
+        STORAGE_NET_CIDR: {get_param: StorageNetCidr }
+        EXTERNAL_NET_CIDR: { get_param: ExternalNetCidr }
+
+outputs:
+  deploy_stdout:
+    description: Deployment reference, used to trigger puppet apply on changes
+    value: 
+      list_join:
+        - ""
+        - - {get_attr: [ControllerSwiftProxyConfigDeploymentsCreate, deploy_stdout]}
+          - {get_attr: [ControllerSwiftProxyConfigDeploymentsUpdate, deploy_stdout]}

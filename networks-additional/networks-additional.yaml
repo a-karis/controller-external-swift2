@@ -1,0 +1,26 @@
+heat_template_version: 2015-04-30
+
+description: Create networks to split out Overcloud traffic
+
+resources:
+
+  ExternalNetwork:
+    type: OS::TripleO::Network::External
+
+  InternalNetwork:
+    type: OS::TripleO::Network::InternalApi
+
+  StorageMgmtNetwork:
+    type: OS::TripleO::Network::StorageMgmt
+
+  StorageNetwork:
+    type: OS::TripleO::Network::Storage
+
+  TenantNetwork:
+    type: OS::TripleO::Network::Tenant
+
+  NetworkAdditional1Network:
+    type: OS::TripleO::Network::NetworkAdditional1
+
+  NetworkAdditional2Network:
+    type: OS::TripleO::Network::NetworkAdditional2

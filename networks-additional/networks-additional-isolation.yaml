@@ -1,0 +1,8 @@
+resource_registry:
+  OS::TripleO::Network::NetworkAdditional1: network-additional-1.yaml
+  OS::TripleO::Controller::Ports::NetworkAdditional1Port: ports/network-additional-1.yaml
+  OS::TripleO::Compute::Ports::NetworkAdditional1Port: ports/network-additional-1.yaml
+  OS::TripleO::Network::NetworkAdditional2: network-additional-2.yaml
+  OS::TripleO::Controller::Ports::NetworkAdditional2Port: ports/network-additional-2.yaml
+  OS::TripleO::Compute::Ports::NetworkAdditional2Port: ports/network-additional-2.yaml
+  OS::TripleO::Network: networks-additional.yaml
